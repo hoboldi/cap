@@ -72,7 +72,7 @@ X_eval_scaled = scaler.transform(X_eval)
 
 # Define the model
 clf = BalancedRandomForestClassifier(random_state=0, max_depth=None, max_features='sqrt', n_estimators=300,
-                                     min_samples_leaf=1, min_samples_split=2)
+                                     min_samples_leaf=1, min_samples_split=2, sampling_strategy='all', replacement=True, bootstrap=False)
 
 # Cross-validation with progress bar
 cv_scores = []
