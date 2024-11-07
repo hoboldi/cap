@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, log_loss, ConfusionMatrixDisplay
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, log_loss, confusion_matrix, ConfusionMatrixDisplay
 from imblearn.ensemble import BalancedRandomForestClassifier
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, train_test_split
@@ -99,7 +99,8 @@ accuracy = accuracy_score(Y_eval, Y_pred)
 f1_score = f1_score(Y_eval, Y_pred, average='weighted')
 precision = precision_score(Y_eval, Y_pred, average='weighted')
 recall = recall_score(Y_eval, Y_pred, average='weighted')
-log_loss = log_loss(Y_eval, Y_pred)
+Y_pred_proba = clf.predict_proba(X_eval_scaled)
+log_loss_value = log_loss(Y_eval, Y_pred_proba)
 
 print(f'Accuracy: {accuracy}')
 print(f'F1 score: {clf.score(X_eval_scaled, Y_eval)}')
@@ -108,14 +109,11 @@ print(f'Recall: {recall}')
 print(f'Log loss: {log_loss}')
 print(f'Confusion matrix: {clf.classes_}')
 
-disp = ConfusionMatrixDisplay.from_predictions(
-    Y_eval,
-    Y_pred,
-    display_labels=clf.classes_
-)
-disp.ax_.set_title("Confusion matrix")
+# Generate the confusion matrix
+cm = confusion_matrix(Y_eval, Y_pred, normalize='true')
 
-print("Confusion matrix")
-print(disp.confusion_matrix)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+disp.plot(values_format=".2%")
+disp.ax_.set_title("Confusion Matrix (Percentage)")
 
 plt.show()
