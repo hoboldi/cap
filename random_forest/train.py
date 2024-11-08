@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import pickle
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, log_loss, confusion_matrix, ConfusionMatrixDisplay
 from imblearn.ensemble import BalancedRandomForestClassifier
@@ -8,6 +9,7 @@ from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, train_test_split
 from random_forest import extract_features as ef, prepare_data as prep
 from tqdm import tqdm
+
 
 # Check the contents of the data directory
 print('Content of data/')
@@ -76,7 +78,7 @@ clf = BalancedRandomForestClassifier(random_state=0, max_depth=None, max_feature
 
 # Cross-validation with progress bar
 cv_scores = []
-for _ in tqdm(range(5), desc="Cross-validation progress"):  # Progress bar for CV
+for _ in tqdm(range(100), desc="Cross-validation progress", mininterval=30):
     score = cross_val_score(clf, X_train_scaled, Y_train, cv=5, scoring='accuracy')
     cv_scores.append(score)
 
@@ -100,7 +102,7 @@ f1_score = f1_score(Y_eval, Y_pred, average='weighted')
 precision = precision_score(Y_eval, Y_pred, average='weighted')
 recall = recall_score(Y_eval, Y_pred, average='weighted')
 Y_pred_proba = clf.predict_proba(X_eval_scaled)
-log_loss_value = log_loss(Y_eval, Y_pred_proba)
+log_loss_value = log_loss(Y_eval, Y_pred_proba).as_integer_ratio()
 
 print(f'Accuracy: {accuracy}')
 print(f'F1 score: {clf.score(X_eval_scaled, Y_eval)}')
@@ -117,3 +119,9 @@ disp.plot(values_format=".2%")
 disp.ax_.set_title("Confusion Matrix (Percentage)")
 
 plt.show()
+plt.savefig('confusion_matrix.png')
+
+# Save the model in a file
+model_file = 'model.pkl'
+with open(model_file, 'wb') as f:
+    pickle.dump(clf, f)
